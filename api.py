@@ -24,18 +24,28 @@ async def read_root(request: Request):
 async def access(access_item: Access_Data, access_db: Session = Depends(db.get_session)):
     pass
 
+@app.get("/users/email/{user_email}", response_model=List[User])
+async def read_users_by_email(user_email: str, db: Session = Depends(db.get_session)):
+    try:
+        users = crud.get_user_by_email(db, user_email=user_email)
+        if not users:
+            raise HTTPException(status_code=404, detail="User not found")
+        return users
+    except Exception as e:
+        logging.error(f"Error reading user by email: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
 @app.post("/check_email/")
 async def check_email(user_email: UserEmail, db: Session = Depends(db.get_session)):
     try:
         user = crud.get_user_by_email(db=db, user_email=user_email.user_email)
         if user:
-            return {"message": "welcome"}
+            return {"message": "welcome", "user_email": user_email.user_email}
         else:
             return {"message": "reject"}
     except Exception as e:
         logging.error(f"Error checking user email: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
-
 
 @app.get("/users/{user_id}", response_model=User)
 async def read_user(user_id: int, db: Session = Depends(db.get_session)):
@@ -56,3 +66,4 @@ async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(db.g
     except Exception as e:
         logging.error(f"Error reading users: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+    

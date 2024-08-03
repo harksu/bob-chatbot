@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Check</title>
+    <title>User Search Portal</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Email Check</h1>
+        <h1>User Search Portal</h1>
         <form id="email-form" action="/check_email/" method="post">
-            <label for="user_email">Email:</label>
-            <input type="email" id="user_email" name="user_email" required>
-            <button type="submit">Submit</button>
+            <label for="user_email">Enter your email:</label>
+            <input type="email" id="user_email" name="user_email" placeholder="Enter email" required>
+            <button type="submit">Search</button>
         </form>
         <div id="result"></div>
+        <table id="user-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Access Time</th>
+                    <th>Access IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- User data will be inserted here -->
+            </tbody>
+        </table>
     </div>
     <script>
         document.getElementById("email-form").onsubmit = async (e) => {
@@ -29,6 +43,31 @@
             });
             const result = await response.json();
             document.getElementById("result").innerText = result.message;
+
+            if (result.message === "welcome") {
+                const userResponse = await fetch(`/users/email/${email}`);
+                const userData = await userResponse.json();
+
+                const table = document.getElementById("user-table");
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                userData.forEach(user => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.user_name}</td>
+                        <td>${user.user_email}</td>
+                        <td>${user.access_time}</td>
+                        <td>${user.access_ip}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.style.display = "table";
+            } else {
+                document.getElementById("user-table").style.display = "none";
+            }
         };
     </script>
 </body>
