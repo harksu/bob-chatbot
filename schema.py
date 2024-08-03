@@ -10,3 +10,13 @@ class Access_Data(BaseModel):
 
     class Config:
         orm_mode = True
+
+class User(BaseModel):
+    user_name: str
+    user_email: str
+    access_time: datetime
+    access_ip: str
+    id : int
+
+    class Config:
+        orm_mode = True

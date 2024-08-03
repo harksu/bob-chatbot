@@ -9,3 +9,12 @@ class Access_Table(Base):
     channel_id = Column(String)
     access_time = Column(DateTime)
     access_id = Column(String)
+
+class User(Base):
+    __tablename__ = 'User'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_name = Column(String(255), nullable=False)
+    user_email = Column(String(255), nullable=False)
+    access_time = Column(DateTime, nullable=False)
+    access_ip = Column(String(45), nullable=False)
