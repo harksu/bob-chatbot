@@ -24,3 +24,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     except Exception as e:
         logging.error(f"Error getting users: {e}")
         raise
+
+def get_user_by_email(db: Session, user_email: str):
+    try:
+        return db.query(models.User).filter(models.User.user_email == user_email).first()
+    except Exception as e:
+        logging.error(f"Error getting user by email: {e}")
+        raise

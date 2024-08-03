@@ -1,21 +1,40 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 import logging
 from sqlalchemy.orm import Session
 from database import db
-from schema import Access_Data,User
+from schema import Access_Data, User, UserEmail
 import crud
-from typing import List  
+from typing import List
+import hashlib
 
 app = FastAPI()
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
 @app.get("/")
-async def root():
-    logging.info("Hello World")
-    return {"message": "Hello World"}
+async def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
 
 @app.post("/access")
 async def access(access_item: Access_Data, access_db: Session = Depends(db.get_session)):
     pass
+
+@app.post("/check_email/")
+async def check_email(user_email: UserEmail, db: Session = Depends(db.get_session)):
+    try:
+        user = crud.get_user_by_email(db=db, user_email=user_email.user_email)
+        if user:
+            return {"message": "welcome"}
+        else:
+            return {"message": "reject"}
+    except Exception as e:
+        logging.error(f"Error checking user email: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @app.get("/users/{user_id}", response_model=User)

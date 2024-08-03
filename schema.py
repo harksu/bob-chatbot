@@ -20,3 +20,6 @@ class User(BaseModel):
 
     class Config:
         orm_mode = True
+
+class UserEmail(BaseModel):
+    user_email: str
