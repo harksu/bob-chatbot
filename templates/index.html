@@ -29,17 +29,23 @@
                 <!-- User data will be inserted here -->
             </tbody>
         </table>
+        <div id="json-result" style="display: none;">
+            <h3>JSON Result</h3>
+            <pre id="json-output"></pre>
+        </div>
     </div>
     <script>
         document.getElementById("email-form").onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById("user_email").value;
+            const tempDate = new Date()
+            const currentTime = new Date(tempDate.getTime() - (tempDate.getTimezoneOffset() * 60000)).toISOString() //시간차 맞추기
             const response = await fetch("/check_email/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ user_email: email })
+                body: JSON.stringify({ user_email: email, access_time: currentTime })
             });
             const result = await response.json();
             document.getElementById("result").innerText = result.message;
@@ -52,8 +58,17 @@
                 const tbody = table.querySelector("tbody");
                 tbody.innerHTML = "";
 
+                document.getElementById("json-output").textContent = JSON.stringify(userData);
+                document.getElementById("json-result").style.display = "block";
+
+
                 userData.forEach(user => {
                     const row = document.createElement("tr");
+
+                    const accessTime = new Date(user.access_time);
+                    const kstTime = new Date(accessTime.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 시간대 변환
+                    const formattedAccessTime = kstTime.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false }); // 사람이 읽기 쉬운 형식으로 변환
+
                     row.innerHTML = `
                         <td>${user.id}</td>
                         <td>${user.user_name}</td>

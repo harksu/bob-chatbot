@@ -23,3 +23,4 @@ class User(BaseModel):
 
 class UserEmail(BaseModel):
     user_email: str
+    access_time: datetime
