@@ -7,3 +7,4 @@ Jinja2==3.1.2
 python-dotenv==1.0.0
 virustotal3==1.0.3
 slack-sdk==3.9.0
+#python-abuseipdb => 이거 안해도됨

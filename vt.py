@@ -9,6 +9,7 @@ load_dotenv()
 api_key = os.getenv("VIRUS_TOTAL_API_KEY")
 
 def virustotal(query_item, query_type):
+    print(f'virustotal({query_type}): {query_item}')
     """ virustotal api """
     result = {}
     if query_type == 'ip':
@@ -23,7 +24,9 @@ def virustotal(query_item, query_type):
     elif query_type == 'hash':
         virus_total = virustotal3.core.Files(api_key)
         result = virus_total.info_file(query_item)
-    if 'data' in result and 'attributes' in result['data']:
-        return result['data']['attributes']['last_analysis_stats']
-    else:
-        return result
+   # if 'data' in result and 'attributes' in result['data']:
+       # return result['data']['attributes']['last_analysis_stats']
+    
+    return result
+    # else:
+    #     return result
