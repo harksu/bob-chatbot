@@ -1,35 +1,31 @@
 version: '3.8'
 
 services:
-  db:
+  mariadb:
     image: mariadb:latest
-    container_name: mariadb
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}  # 루트 비밀번호 설정
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - ${DB_PORT}:${DB_PORT}
+      - "3306:3306"
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - db_data:/var/lib/mysql
+  
 
-  web:
-    build: .
-    container_name: fastapi-app
-    command: python main.py
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/app
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      - DB_USERNAME=${MYSQL_USER}
-      - DB_PASSWORD=${MYSQL_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_HOST: mariadb
+      DB_PORT: "3306"
+      DB_NAME: ${MYSQL_DATABASE}
+    ports:
+      - "8000:8000"
     depends_on:
-      - db
+      - mariadb
 
 volumes:
-  mariadb_data:
+  db_data:

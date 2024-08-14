@@ -1,5 +1,5 @@
-from typing import Optional
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 
 class Access_Data(BaseModel):
@@ -11,9 +11,19 @@ class Access_Data(BaseModel):
     class Config:
         orm_mode = True
 
-class User(BaseModel):
-    user_id: str
-    email: str
+class DevelopTechCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    habit: Optional[str] = None
+    soju_count: Optional[float] = 0
 
-class UserEmail(BaseModel):
-    email: str
+class DevelopTech(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    habit: Optional[str] = None
+    soju_count: Optional[float] = 0
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
