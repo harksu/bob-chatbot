@@ -33,20 +33,27 @@ def process(client: SocketModeClient, req: SocketModeRequest):
             if message_text.startswith("ioc "):
                 ioc = message_text.split(" ")[1]
                 results = []
-                print(ioc)
+                results.append(f"입력된 IP: {ioc}를 기반으로 IoC를 조회하도록 하겠습니다. \n")
+                vt_result = virustotal(ioc, 'ip') 
+                results.append(f"VirusTotal 조회 결과\n")
+                results.append(f"Harmless=> {vt_result['harmless']}건\n")      
+                results.append(f"Malicious=> {vt_result['malicious']}건\n")    
+                results.append(f"Suspicious=> {vt_result['suspicious']}건\n")   
+                results.append(f"Timeout=> {vt_result['timeout']}건\n")
+                results.append(f"Undetected=> {vt_result['undetected']}건\n")
 
-                vt_result = virustotal(ioc, 'ip')  # 예시로 IP 타입 사용
-                print(vt_result)
-                #logging.CRITICAL(f"VirusTotal: {vt_result}")
-               # results.append(f"VirusTotal: {vt_result}")
+                abuseipdb_result = abuseipdb_query(ioc)['data']
+                results.append(f"AbuseIPDB 조회 결과\n")
+                results.append(f"IsPublic=> {abuseipdb_result['isPublic']}\n")      
+                results.append(f"IsWhitelisted=> {abuseipdb_result['isWhitelisted']}\n")    
+                results.append(f"AbuseConfidenceScore=> {abuseipdb_result['abuseConfidenceScore']}점\n")   
+                results.append(f"UsageType=> {abuseipdb_result['usageType']}\n")
+                results.append(f"Domain=> {abuseipdb_result['domain']}\n")
+                response_message = "\n".join(results)
 
-                abuseipdb_result = abuseipdb_query(ioc)
-                #logging.CRITICAL(f"AbuseIPDB: {abuseipdb_result}")
-               # results.append(f"AbuseIPDB: {abuseipdb_result}")
-                print(abuseipdb_result)
-              #  response_message = "\n".join(results)
-              #  print(response_message)
-              #  client.web_client.chat_postMessage(channel=channel_id, text=response_message)
+                print(response_message)
+
+                client.web_client.chat_postMessage(channel=channel_id, text=response_message)
             else:
                 print("useage: type ioc <ip_address>")
 

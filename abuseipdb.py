@@ -12,7 +12,7 @@ def abuseipdb_query(ip_address):
     url = "https://api.abuseipdb.com/api/v2/check"
     querystring = {
         "ipAddress": ip_address,
-        "maxAgeInDays": "90"  
+        "maxAgeInDays": "30"  
     }
     headers = {
         "Accept": "application/json",
