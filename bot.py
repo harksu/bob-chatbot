@@ -33,25 +33,34 @@ def process(client: SocketModeClient, req: SocketModeRequest):
             if message_text.startswith("ioc "):
                 ioc = message_text.split(" ")[1]
                 results = []
-                results.append(f"입력된 IP: {ioc}를 기반으로 IoC를 조회하도록 하겠습니다. \n")
+                border_line = ":heavy_minus_sign:" * 20
+                
+
+                results.append(f":mag: 입력된 IP: {ioc}를 기반으로 IoC를 조회하도록 하겠습니다.")
+                results.append(f"{border_line}")
+
                 vt_result = virustotal(ioc, 'ip') 
-                results.append(f"VirusTotal 조회 결과\n")
-                results.append(f"Harmless=> {vt_result['harmless']}건\n")      
-                results.append(f"Malicious=> {vt_result['malicious']}건\n")    
-                results.append(f"Suspicious=> {vt_result['suspicious']}건\n")   
-                results.append(f"Timeout=> {vt_result['timeout']}건\n")
-                results.append(f"Undetected=> {vt_result['undetected']}건\n")
+                results.append(f":white_check_mark: VirusTotal 조회 결과")
+                results.append(f":skull_and_crossbones: Harmless => {vt_result['harmless']}건")      
+                results.append(f":biohazard_sign: Malicious => {vt_result['malicious']}건")    
+                results.append(f":warning: Suspicious => {vt_result['suspicious']}건")   
+                results.append(f":hourglass_flowing_sand: Timeout => {vt_result['timeout']}건")
+                results.append(f":grey_question: Undetected => {vt_result['undetected']}건")
 
+                
+                results.append(f"{border_line}")
+
+                results.append(f":shield: AbuseIPDB 조회 결과")
                 abuseipdb_result = abuseipdb_query(ioc)['data']
-                results.append(f"AbuseIPDB 조회 결과\n")
-                results.append(f"IsPublic=> {abuseipdb_result['isPublic']}\n")      
-                results.append(f"IsWhitelisted=> {abuseipdb_result['isWhitelisted']}\n")    
-                results.append(f"AbuseConfidenceScore=> {abuseipdb_result['abuseConfidenceScore']}점\n")   
-                results.append(f"UsageType=> {abuseipdb_result['usageType']}\n")
-                results.append(f"Domain=> {abuseipdb_result['domain']}\n")
-                response_message = "\n".join(results)
+                results.append(f":globe_with_meridians: IsPublic => {abuseipdb_result['isPublic']}")
+                results.append(f":no_entry_sign: IsWhitelisted => {abuseipdb_result['isWhitelisted']}")    
+                results.append(f":triangular_flag_on_post: AbuseConfidenceScore => {abuseipdb_result['abuseConfidenceScore']}점")   
+                results.append(f":computer: UsageType => {abuseipdb_result['usageType']}")
+                results.append(f":house: Domain => {abuseipdb_result['domain']}")
 
-                print(response_message)
+                results.append(f"{border_line}")
+            
+                response_message = "\n".join(results)
 
                 client.web_client.chat_postMessage(channel=channel_id, text=response_message)
             else:
