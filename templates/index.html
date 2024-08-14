@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Search Portal</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>User Search Portal</h1>
+        <form id="email-form" action="/check_email/" method="post">
+            <label for="user_email">Enter your email:</label>
+            <input type="email" id="user_email" name="user_email" placeholder="Enter email" required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="result"></div>
+        <table id="user-table" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Access Time</th>
+                    <th>Access IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- User data will be inserted here -->
+            </tbody>
+        </table>
+        <div id="json-result" style="display: none;">
+            <h3>IoC Inforamtion Dectected!!!</h3>
+            <p>JSON Result</p>
+            <pre id="json-output"></pre>
+        </div>
+    </div>
+    <script>
+        document.getElementById("email-form").onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("user_email").value;
+            const tempDate = new Date()
+            const currentTime = new Date(tempDate.getTime() - (tempDate.getTimezoneOffset() * 60000)).toISOString() //시간차 맞추기
+            const response = await fetch("/check_email/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ user_email: email, access_time: currentTime })
+            });
+            const result = await response.json();
+            document.getElementById("result").innerText = result.message;
+
+            if (result.message === "welcome") {
+                const userResponse = await fetch(`/users/email/${email}`);
+                const userData = await userResponse.json();
+
+                const table = document.getElementById("user-table");
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = "";
+
+                document.getElementById("json-output").textContent = JSON.stringify(userData);
+                document.getElementById("json-result").style.display = "block";
+
+
+                userData.forEach(user => {
+                    const row = document.createElement("tr");
+
+                    const accessTime = new Date(user.access_time);
+                    const kstTime = new Date(accessTime.getTime() + (9 * 60 * 60 * 1000)); // UTC+9 시간대 변환
+                    const formattedAccessTime = kstTime.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', hour12: false }); // 사람이 읽기 쉬운 형식으로 변환
+
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.user_name}</td>
+                        <td>${user.user_email}</td>
+                        <td>${user.access_time}</td>
+                        <td>${user.access_ip}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.style.display = "table";
+            } else {
+                document.getElementById("user-table").style.display = "none";
+                document.getElementById("json-result").style.display = "none";
+            }
+        };
+    </script>
+</body>
+</html>

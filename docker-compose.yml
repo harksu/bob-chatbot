@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  web:
+    build: .
+    container_name: fastapi-app
+    command: python main.py
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    environment:
+      - DB_USERNAME=${MYSQL_USER}
+      - DB_PASSWORD=${MYSQL_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${MYSQL_DATABASE}
+    depends_on:
+      - db
+
+volumes:
+  mariadb_data:

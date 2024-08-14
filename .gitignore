@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+myenv/
+
+# Configuration files
+conf/
+
+# Other ignores
+*.log
+*.tmp
+*.bak
+*.swp
+
+.env
+chatbot_venv/
