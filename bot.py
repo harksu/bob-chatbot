@@ -37,10 +37,13 @@ def process(client: SocketModeClient, req: SocketModeRequest):
                 
 
                 results.append(f":mag: 입력된 IP: {ioc}를 기반으로 IoC를 조회하도록 하겠습니다.")
+                
+                vt_result = virustotal(ioc, 'ip') 
+                
+                results.append(f"{border_line}")
+                results.append(f":white_check_mark: VirusTotal 조회 결과")
                 results.append(f"{border_line}")
 
-                vt_result = virustotal(ioc, 'ip') 
-                results.append(f":white_check_mark: VirusTotal 조회 결과")
                 results.append(f":skull_and_crossbones: Harmless => {vt_result['harmless']}건")      
                 results.append(f":biohazard_sign: Malicious => {vt_result['malicious']}건")    
                 results.append(f":warning: Suspicious => {vt_result['suspicious']}건")   
@@ -49,8 +52,9 @@ def process(client: SocketModeClient, req: SocketModeRequest):
 
                 
                 results.append(f"{border_line}")
-
                 results.append(f":shield: AbuseIPDB 조회 결과")
+                results.append(f"{border_line}")
+                
                 abuseipdb_result = abuseipdb_query(ioc)['data']
                 results.append(f":globe_with_meridians: IsPublic => {abuseipdb_result['isPublic']}")
                 results.append(f":no_entry_sign: IsWhitelisted => {abuseipdb_result['isWhitelisted']}")    
