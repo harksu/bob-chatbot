@@ -8,11 +8,15 @@ from abuseipdb import abuseipdb_query
 import logging
 import os
 from threading import Event
+import requests
+
 
 load_dotenv()
 
 BOT_TOKEN = os.getenv("BOB_TOKEN")
 SOCKET_TOKEN = os.getenv("BOB_SOCKET")
+FASTAPI_HOST = os.getenv("FASTAPI_HOST", "http://localhost:8080")  
+
 
 SLACK_CLIENT = SocketModeClient(
     app_token=SOCKET_TOKEN,
@@ -29,8 +33,25 @@ def process(client: SocketModeClient, req: SocketModeRequest):
             
             message_text = req.payload["event"]["text"]
             channel_id = req.payload["event"]["channel"]
-            logging.info(message_text.startswith("ioc "))
-            if message_text.startswith("ioc "):
+            if message_text.startswith("bob-wiki:"):
+                name = message_text.split("bob-wiki:")[1].strip()
+                if name:
+                    results = []
+                    response = requests.get(f"{FASTAPI_HOST}/developtechs/{name}")
+                    if response.status_code == 200:
+                        data = response.json()
+                        results.append(f"🏷️이름: {data['name']}\n")
+                        results.append(f"🌟특징: {data['description']}\n")  
+                        results.append(f"🔁습관: {data['habit']}\n") 
+                        results.append(f"🍶소주: {data['soju_count']}병\n")  
+                        response_message = "\n".join(results)
+                    else:
+                        response_message = "해당 이름으로 데이터를 찾을 수 없습니다."
+                    client.web_client.chat_postMessage(channel=channel_id, text=response_message)
+                else:
+                    client.web_client.chat_postMessage(channel=channel_id, text="이름을 입력해 주세요.")
+
+            elif message_text.startswith("ioc "):
                 ioc = message_text.split(" ")[1]
                 results = []
                 border_line = ":heavy_minus_sign:" * 20
@@ -68,7 +89,7 @@ def process(client: SocketModeClient, req: SocketModeRequest):
 
                 client.web_client.chat_postMessage(channel=channel_id, text=response_message)
             else:
-                print("useage: type ioc <ip_address>")
+                print("useage: 이거 나중에 사용법 적자")
 
 if __name__ == "__main__":
     try:
