@@ -26,7 +26,7 @@ async def startup_event():
     SLACK_CLIENT.socket_mode_request_listeners.append(process)
     SLACK_CLIENT.connect()
 
-@app.post("/developtechs/", response_model=schema.DevelopTech)
+@app.post("/register-developtechs/", response_model=schema.DevelopTech)
 def create_developtech(developtech: schema.DevelopTechCreate, db: Session = Depends(db.get_session)):
     """
     DevelopTech 테이블에 새로운 레코드를 생성하는 API 엔드포인트.

@@ -50,7 +50,24 @@ def process(client: SocketModeClient, req: SocketModeRequest):
                     client.web_client.chat_postMessage(channel=channel_id, text=response_message)
                 else:
                     client.web_client.chat_postMessage(channel=channel_id, text="이름을 입력해 주세요.")
-
+            elif message_text.startswith("register:"):
+                 payload = message_text.split("register:")[1].strip()
+                 name = payload.split(",")[0].strip()
+                 print(name)
+                 description = payload.split(",")[1].strip()
+                 print(description)
+                 habit = payload.split(",")[2].strip()
+                 print(habit)
+                 soju_count = payload.split(",")[3].strip()
+                 print(soju_count)
+                 print(name and description and habit and soju_count)
+                 if name and description and habit and soju_count:
+                     print("api start")
+                     response = requests.post(f"{FASTAPI_HOST}/register-developtechs", json={"name": name,"description": description, "habit": habit, "soju_count": soju_count})
+                     if response.status_code == 200:
+                         client.web_client.chat_postMessage(channel=channel_id, text=f"{name}개발자 등록 성공! :)")
+                     else:
+                         client.web_client.chat_postMessage(channel=channel_id, text="개발자 등록 실패!")
             elif message_text.startswith("ioc "):
                 ioc = message_text.split(" ")[1]
                 results = []
