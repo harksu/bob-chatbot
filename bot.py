@@ -17,6 +17,7 @@ BOT_TOKEN = os.getenv("BOB_TOKEN")
 SOCKET_TOKEN = os.getenv("BOB_SOCKET")
 FASTAPI_HOST = os.getenv("FASTAPI_HOST", "http://localhost:8080")  
 
+ALLOWED_USERS = ['U02DY7249CZ', '']
 
 SLACK_CLIENT = SocketModeClient(
     app_token=SOCKET_TOKEN,
@@ -27,12 +28,20 @@ def process(client: SocketModeClient, req: SocketModeRequest):
     if req.type == "events_api":
         response = SocketModeResponse(envelope_id=req.envelope_id)
         client.send_socket_mode_response(response)
+        event = req.payload.get("event", {})
+        if"bot_id" in event:
+            return
+
 
         if req.payload["event"]["type"] == "message" \
             and req.payload["event"].get("subtype") is None:
             
             message_text = req.payload["event"]["text"]
             channel_id = req.payload["event"]["channel"]
+            user_id = req.payload["event"]["user"]
+            if user_id not in ALLOWED_USERS:
+                    client.web_client.chat_postMessage(channel=channel_id, text="권한이 없습니다.")
+                    return
             if message_text.startswith("bob-wiki:"):
                 name = message_text.split("bob-wiki:")[1].strip()
                 if name:
@@ -53,16 +62,10 @@ def process(client: SocketModeClient, req: SocketModeRequest):
             elif message_text.startswith("register:"):
                  payload = message_text.split("register:")[1].strip()
                  name = payload.split(",")[0].strip()
-                 print(name)
                  description = payload.split(",")[1].strip()
-                 print(description)
                  habit = payload.split(",")[2].strip()
-                 print(habit)
                  soju_count = payload.split(",")[3].strip()
-                 print(soju_count)
-                 print(name and description and habit and soju_count)
                  if name and description and habit and soju_count:
-                     print("api start")
                      response = requests.post(f"{FASTAPI_HOST}/register-developtechs", json={"name": name,"description": description, "habit": habit, "soju_count": soju_count})
                      if response.status_code == 200:
                          client.web_client.chat_postMessage(channel=channel_id, text=f"{name}개발자 등록 성공! :)")
